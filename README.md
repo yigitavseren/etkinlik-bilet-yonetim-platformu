@@ -1,7 +1,5 @@
 # 🎟️ BiletBul Platformu (Sunum Versiyonu)
 
-Merhaba arkadaşlar! Projemizin sunumda efsanevi görünmesi için kullanıcı arayüzünü (UI) ve kullanıcı deneyimini (UX) baştan aşağı yeniledik. Sistem sadece bir "ilan panosu" olmaktan çıkıp, interaktif ve tam teşekküllü bir biletleme platformuna dönüştü. 
-
 Aşağıda projeyi bilgisayarınızda nasıl çalıştıracağınız ve eklenen yeni özellikler yer alıyor.
 
 ---
@@ -38,16 +36,18 @@ Ana sayfada, o haftanın en popüler 4 etkinliğini gösteren ve 5 saniyede bir 
 ### 3. 👤 Üye Girişi ve Biletlerim Sayfası
 *   Sağ üstten **Giriş Yap**'a basarak rastgele bir e-posta yazdığınızda sisteme anında o isimle giriş yapmış oluyorsunuz (Sunum rahatlığı için şifre doğrulama devre dışı).
 *   Giriş yaptıktan sonra isminize tıklayarak Profilinize gidebilirsiniz.
-*   **En Havalı Kısım:** Satın alınan biletler profil sayfasında gerçek bir **Uçak Bileti / Etkinlik Bileti (Boarding Pass)** tasarımıyla, QR kod ve barkod görselleriyle beraber listeleniyor!
+*   Satın alınan biletler profil sayfasında gerçek bir **Uçak Bileti / Etkinlik Bileti (Boarding Pass)** tasarımıyla, QR kod ve barkod görselleriyle beraber listeleniyor!
 
 ### 4. 💺 İnteraktif Koltuk Seçimi
-Bir etkinliğin içine girip **Koltuk Seç** dediğinizde ekran kararıyor ve ortada devasa bir **Sinema/Tiyatro Salonu Haritası** açılıyor. Boş koltuklara tıkladıkça yeşil oluyor ve fiyat sağ panelde anlık hesaplanıyor. (Dolu koltuklar her etkinlik için sabittir, sunumda hata çıkmaz).
+Bir etkinliğin içine girip **Koltuk Seç** dediğinizde ekran kararıyor ve ortada devasa bir **Sinema/Tiyatro Salonu Haritası** açılıyor. Boş koltuklara tıkladıkça yeşil oluyor ve fiyat sağ panelde anlık hesaplanıyor. 
 
 ### 5. 💳 Gerçekçi Ödeme Ekranı (Checkout)
 Koltukları seçip "Güvenli Ödeme Yap" butonuna basınca şık bir **Sanal Kredi Kartı** açılıyor. Siz forma isim ve numara yazdıkça, Apple Pay akıcılığında üstteki kart grafiği anlık güncelleniyor. Ödeme bitince başarılı animasyonu çıkıp biletleri hesabınıza ekliyor.
 
 ### 6. ⚙️ Yönetim Paneli (Admin Dashboard)
 Sağ üstteki "Giriş Yap" butonunun hemen solundaki **Ayarlar İkonuna (⚙️)** tıklarsanız gizli Admin paneline girersiniz. Buradan etkinlik silebilir veya internetten yeni bir resim linki kopyalayarak yepyeni bir etkinlik ekleyebilirsiniz (Eklerken anında önizlemesi çıkar). Veriler `LocalStorage`'da tutulduğu için sayfayı yenileseniz de kaybolmaz.
+Eğer girdiğin e-postada "admin" kelimesi geçiyorsa (örneğin: admin@biletbul.com), sistem seni otomatik olarak Yönetici yapıyor.
+Eğer e-postanda "org" kelimesi geçiyorsa (örneğin: org@biletbul.com), sistem seni otomatik olarak Organizatör yapıyor.
 
 ---
-*Başarılar, sunumu parçalayacağınıza eminim! 😎*
+*Başarılar
