@@ -16,11 +16,23 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const login = (name, email) => {
+  const login = (name, email, role = 'user') => {
     setUser({
       id: "u_" + Date.now(),
       name: name || "Demo Kullanıcı",
       email: email || "demo@biletbul.com",
+      role: role, // 'user', 'admin', 'organizer'
+      tickets: []
+    });
+  };
+
+  const register = (name, email, role = 'user') => {
+    // Sunum amaçlı mock kayıt, anında giriş yapar
+    setUser({
+      id: "u_" + Date.now(),
+      name: name || "Yeni Kullanıcı",
+      email: email,
+      role: role,
       tickets: []
     });
   };
@@ -39,7 +51,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, addTicket }}>
+    <AuthContext.Provider value={{ user, login, register, logout, addTicket }}>
       {children}
     </AuthContext.Provider>
   );

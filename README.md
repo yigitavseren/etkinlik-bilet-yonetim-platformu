@@ -1,70 +1,53 @@
-# Getting Started with Create React App
+# 🎟️ BiletBul Platformu (Sunum Versiyonu)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Merhaba arkadaşlar! Projemizin sunumda efsanevi görünmesi için kullanıcı arayüzünü (UI) ve kullanıcı deneyimini (UX) baştan aşağı yeniledik. Sistem sadece bir "ilan panosu" olmaktan çıkıp, interaktif ve tam teşekküllü bir biletleme platformuna dönüştü. 
 
-## Available Scripts
+Aşağıda projeyi bilgisayarınızda nasıl çalıştıracağınız ve eklenen yeni özellikler yer alıyor.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🚀 Projeyi Nasıl Çalıştıracaksınız?
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Projeyi bilgisayarınızda sorunsuz çalıştırmak için aşağıdaki iki adımı terminalde sırasıyla uygulayın:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**1. Gerekli Paketleri Yükleyin:**
+Projeye yeni ikonlar ve eklentiler (lucide-react, react-router-dom vb.) dahil edildiği için önce bunları kurmamız gerekiyor. Terminali açıp şunu yazın:
+```bash
+npm install
+```
 
-### `npm test`
+**2. Projeyi Başlatın:**
+Yükleme bittikten sonra projeyi ayağa kaldırmak için klasik başlatma komutumuzu giriyoruz:
+```bash
+npm start
+```
+Bu kadar! Tarayıcınızda `http://localhost:3000` adresinde proje açılacaktır.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## ✨ Projeye Neler Eklendi? (Sunumda Gösterilecekler)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Jüriye ve sınıfa sunum yaparken sırasıyla şu özellikleri sergileyebilirsiniz:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 1. 🎠 Öne Çıkanlar (Hero Slider)
+Ana sayfada, o haftanın en popüler 4 etkinliğini gösteren ve 5 saniyede bir otomatik dönen Netflix tarzı devasa bir "Öne Çıkanlar" alanı var.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### 2. 🔍 Akıllı Arama
+Üst menüdeki arama çubuğu artık siz harf girdikçe sonuçları dinamik olarak alt tarafta açılır bir listede (dropdown) listeliyor. Sadece etkinlik adına değil, mekana ve sanatçıya göre de arama yapıyor.
 
-### `npm run eject`
+### 3. 👤 Üye Girişi ve Biletlerim Sayfası
+*   Sağ üstten **Giriş Yap**'a basarak rastgele bir e-posta yazdığınızda sisteme anında o isimle giriş yapmış oluyorsunuz (Sunum rahatlığı için şifre doğrulama devre dışı).
+*   Giriş yaptıktan sonra isminize tıklayarak Profilinize gidebilirsiniz.
+*   **En Havalı Kısım:** Satın alınan biletler profil sayfasında gerçek bir **Uçak Bileti / Etkinlik Bileti (Boarding Pass)** tasarımıyla, QR kod ve barkod görselleriyle beraber listeleniyor!
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### 4. 💺 İnteraktif Koltuk Seçimi
+Bir etkinliğin içine girip **Koltuk Seç** dediğinizde ekran kararıyor ve ortada devasa bir **Sinema/Tiyatro Salonu Haritası** açılıyor. Boş koltuklara tıkladıkça yeşil oluyor ve fiyat sağ panelde anlık hesaplanıyor. (Dolu koltuklar her etkinlik için sabittir, sunumda hata çıkmaz).
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 5. 💳 Gerçekçi Ödeme Ekranı (Checkout)
+Koltukları seçip "Güvenli Ödeme Yap" butonuna basınca şık bir **Sanal Kredi Kartı** açılıyor. Siz forma isim ve numara yazdıkça, Apple Pay akıcılığında üstteki kart grafiği anlık güncelleniyor. Ödeme bitince başarılı animasyonu çıkıp biletleri hesabınıza ekliyor.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 6. ⚙️ Yönetim Paneli (Admin Dashboard)
+Sağ üstteki "Giriş Yap" butonunun hemen solundaki **Ayarlar İkonuna (⚙️)** tıklarsanız gizli Admin paneline girersiniz. Buradan etkinlik silebilir veya internetten yeni bir resim linki kopyalayarak yepyeni bir etkinlik ekleyebilirsiniz (Eklerken anında önizlemesi çıkar). Veriler `LocalStorage`'da tutulduğu için sayfayı yenileseniz de kaybolmaz.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+*Başarılar, sunumu parçalayacağınıza eminim! 😎*

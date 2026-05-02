@@ -7,6 +7,8 @@ import Navbar from "./components/Navbar";
 import TicketPage from "./pages/TicketPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProfilePage from "./pages/ProfilePage";
+import OrganizerDashboard from "./pages/OrganizerDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [hover, setHover] = useState(false);
@@ -22,8 +24,27 @@ function App() {
           <Routes>
             <Route path="/" element={<EventList />} />
             <Route path="/bilet/:id" element={<TicketPage />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/profile" element={<ProfilePage />} />
+            
+            {/* Sadece giriş yapmış olanlar görebilir */}
+            <Route path="/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Sadece admin görebilir */}
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
+            
+            {/* Sadece organizatör görebilir */}
+            <Route path="/organizer" element={
+              <ProtectedRoute requiredRole="organizer">
+                <OrganizerDashboard />
+              </ProtectedRoute>
+            } />
           </Routes>
         </BrowserRouter>
       </EventProvider>

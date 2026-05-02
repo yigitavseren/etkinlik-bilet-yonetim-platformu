@@ -1,5 +1,5 @@
 import { useState, useContext, useMemo, useRef, useEffect } from "react";
-import { Search, User, Ticket, Settings, MapPin } from "lucide-react";
+import { Search, User, Ticket, Settings, MapPin, Briefcase } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { EventContext } from "../context/EventContext";
 import { AuthContext } from "../context/AuthContext";
@@ -164,9 +164,20 @@ function Navbar() {
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-        <Link to="/admin" style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>
-          <Settings size={20} />
-        </Link>
+        
+        {/* Admin İkonu (Sadece rolü admin olanlar görür) */}
+        {user?.role === "admin" && (
+          <Link to="/admin" title="Yönetici Paneli" style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>
+            <Settings size={20} />
+          </Link>
+        )}
+
+        {/* Organizatör İkonu (Sadece rolü organizer olanlar görür) */}
+        {user?.role === "organizer" && (
+          <Link to="/organizer" title="Organizatör Paneli" style={{ color: "var(--text-muted)", display: "flex", alignItems: "center", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.color = "var(--primary)"} onMouseLeave={(e) => e.currentTarget.style.color = "var(--text-muted)"}>
+            <Briefcase size={20} />
+          </Link>
+        )}
         
         {user ? (
           <button
