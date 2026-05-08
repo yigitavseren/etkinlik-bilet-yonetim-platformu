@@ -8,34 +8,34 @@ function LoginModal({ isOpen, onClose }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [hata, setHata] = useState("");
+  const [yukleniyor, setYukleniyor] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // E-posta adresine göre rol ataması
-    let role = "user";
-    const lowerEmail = email.toLowerCase();
-    
-    if (lowerEmail.includes("admin")) {
-      role = "admin";
-    } else if (lowerEmail.includes("org") || lowerEmail.includes("organizator")) {
-      role = "organizer";
+    setHata("");
+    setYukleniyor(true);
+
+    let sonuc;
+    if (isRegister) {
+      sonuc = await register(name, email, password);
+    } else {
+      sonuc = await login(email, password);
     }
 
-    if (isRegister) {
-      register(name, email, role);
+    setYukleniyor(false);
+
+    if (sonuc?.basarili === false) {
+      setHata(sonuc.hata || "Bir hata oluştu.");
     } else {
-      const displayName = email ? email.split("@")[0] : "Demo Kullanıcı";
-      login(displayName, email, role);
+      onClose();
+      setEmail("");
+      setPassword("");
+      setName("");
+      setHata("");
     }
-    
-    onClose();
-    // Reset state on close
-    setEmail("");
-    setPassword("");
-    setName("");
   };
 
   return (
@@ -59,61 +59,57 @@ function LoginModal({ isOpen, onClose }) {
           <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px" }}><X size={24} /></button>
         </div>
 
-        {/* Sekmeler */}
         <div style={{ display: "flex", borderBottom: "1px solid var(--border-color)" }}>
-          <button 
-            onClick={() => setIsRegister(false)}
-            style={{ 
-              flex: 1, padding: "12px", background: "none", border: "none",
+          <button onClick={() => { setIsRegister(false); setHata(""); }}
+            style={{ flex: 1, padding: "12px", background: "none", border: "none",
               borderBottom: !isRegister ? "2px solid var(--primary)" : "2px solid transparent",
               color: !isRegister ? "var(--primary)" : "var(--text-muted)",
-              fontWeight: 600, cursor: "pointer", transition: "all 0.2s"
-            }}>
+              fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>
             Giriş Yap
           </button>
-          <button 
-            onClick={() => setIsRegister(true)}
-            style={{ 
-              flex: 1, padding: "12px", background: "none", border: "none",
+          <button onClick={() => { setIsRegister(true); setHata(""); }}
+            style={{ flex: 1, padding: "12px", background: "none", border: "none",
               borderBottom: isRegister ? "2px solid var(--primary)" : "2px solid transparent",
               color: isRegister ? "var(--primary)" : "var(--text-muted)",
-              fontWeight: 600, cursor: "pointer", transition: "all 0.2s"
-            }}>
+              fontWeight: 600, cursor: "pointer", transition: "all 0.2s" }}>
             Kayıt Ol
           </button>
         </div>
 
         <div style={{ padding: "24px" }}>
+          {hata && (
+            <div style={{
+              background: "#f8d7da", color: "#721c24", padding: "10px 14px",
+              borderRadius: "8px", marginBottom: "16px", fontSize: "14px"
+            }}>
+              {hata}
+            </div>
+          )}
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {isRegister && (
               <div>
                 <label style={{ display: "block", marginBottom: "8px", color: "var(--text-muted)", fontSize: "14px" }}>Ad Soyad</label>
-                <input 
-                  type="text" required value={name} onChange={(e) => setName(e.target.value)} 
-                  placeholder="Ad Soyad" style={inputStyle} 
-                />
+                <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
+                  placeholder="Ad Soyad" style={inputStyle} />
               </div>
             )}
             <div>
               <label style={{ display: "block", marginBottom: "8px", color: "var(--text-muted)", fontSize: "14px" }}>E-posta Adresi</label>
-              <input 
-                type="email" required value={email} onChange={(e) => setEmail(e.target.value)} 
-                placeholder="ornek@mail.com" style={inputStyle} 
-              />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                placeholder="ornek@mail.com" style={inputStyle} />
             </div>
             <div>
               <label style={{ display: "block", marginBottom: "8px", color: "var(--text-muted)", fontSize: "14px" }}>Şifre</label>
-              <input 
-                type="password" required value={password} onChange={(e) => setPassword(e.target.value)} 
-                placeholder="••••••••" style={inputStyle} 
-              />
+              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••" style={inputStyle} />
             </div>
 
-            <button type="submit" style={{
+            <button type="submit" disabled={yukleniyor} style={{
               padding: "14px", backgroundColor: "var(--primary)", color: "white", border: "none", borderRadius: "8px",
-              fontSize: "16px", fontWeight: 600, cursor: "pointer", marginTop: "8px"
+              fontSize: "16px", fontWeight: 600, cursor: yukleniyor ? "not-allowed" : "pointer",
+              marginTop: "8px", opacity: yukleniyor ? 0.7 : 1
             }}>
-              {isRegister ? "Hesap Oluştur" : "Giriş Yap"}
+              {yukleniyor ? "Bekleyin..." : isRegister ? "Hesap Oluştur" : "Giriş Yap"}
             </button>
           </form>
         </div>

@@ -40,6 +40,11 @@ function TicketPage() {
       return;
     }
 
+    if (user.role === "admin" || user.role === "organizer") {
+      alert("Yönetici hesabıyla bilet satın alınamaz.");
+      return;
+    }
+
     setIsCheckoutOpen(true);
   };
 
@@ -134,6 +139,54 @@ function TicketPage() {
           <p style={{ color: "var(--text-muted)", lineHeight: 1.6, fontSize: "16px", whiteSpace: "pre-line" }}>
             {event.description}
           </p>
+          {/* BENZEr ETKİNLİKLER */}
+          {(() => {
+            const benzerler = events
+              .filter(e => e.category === event.category && e.id !== event.id)
+              .slice(0, 3);
+            
+            if (benzerler.length === 0) return null;
+
+            return (
+              <div style={{ marginTop: "48px" }}>
+                <h3 style={{ fontSize: "24px", margin: "0 0 24px 0", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
+                  Benzer Etkinlikler
+                </h3>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+                  {benzerler.map(e => (
+                    <div
+                      key={e.id}
+                      onClick={() => navigate(`/bilet/${e.id}`)}
+                      style={{
+                        backgroundColor: "var(--bg-card)",
+                        border: "1px solid var(--border-color)",
+                        borderRadius: "12px",
+                        overflow: "hidden",
+                        cursor: "pointer",
+                        transition: "transform 0.2s",
+                      }}
+                      onMouseEnter={el => el.currentTarget.style.transform = "translateY(-4px)"}
+                      onMouseLeave={el => el.currentTarget.style.transform = "translateY(0)"}
+                    >
+                      <img
+                        src={e.image}
+                        alt={e.name}
+                        style={{ width: "100%", height: "120px", objectFit: "cover" }}
+                      />
+                      <div style={{ padding: "12px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--primary)", fontWeight: 600, textTransform: "uppercase", marginBottom: "6px" }}>
+                          {e.category}
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: "15px", marginBottom: "4px" }}>{e.name}</div>
+                        <div style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "8px" }}>{e.venue}</div>
+                        <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--primary)" }}>{e.price} ₺</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* SAĞ SATIN ALMA KARTI */}

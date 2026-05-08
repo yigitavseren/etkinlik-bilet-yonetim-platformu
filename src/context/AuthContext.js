@@ -1,6 +1,8 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState } from 'react';
 
 export const AuthContext = createContext();
+
+const API_URL = "http://localhost:5196/api";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -8,45 +10,68 @@ export const AuthProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : null;
   });
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('biletbul_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('biletbul_user');
-    }
-  }, [user]);
+  const login = async (email, sifre) => {
+    try {
+      const res = await fetch(`${API_URL}/Auth/giris`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, sifre }),
+      });
 
-  const login = (name, email, role = 'user') => {
-    setUser({
-      id: "u_" + Date.now(),
-      name: name || "Demo Kullanıcı",
-      email: email || "demo@biletbul.com",
-      role: role, // 'user', 'admin', 'organizer'
-      tickets: []
-    });
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+
+      const data = await res.json();
+      
+      const kullanici = {
+        id: data.id,
+        name: data.ad,
+        email: email,
+        role: data.rol, // 'admin', 'organizator', 'kullanici'
+        token: data.token,
+        tickets: []
+      };
+
+      setUser(kullanici);
+      localStorage.setItem('biletbul_user', JSON.stringify(kullanici));
+      return { basarili: true };
+    } catch (err) {
+      return { basarili: false, hata: err.message };
+    }
   };
 
-  const register = (name, email, role = 'user') => {
-    // Sunum amaçlı mock kayıt, anında giriş yapar
-    setUser({
-      id: "u_" + Date.now(),
-      name: name || "Yeni Kullanıcı",
-      email: email,
-      role: role,
-      tickets: []
-    });
+  const register = async (ad, email, sifre) => {
+    try {
+      const res = await fetch(`${API_URL}/Auth/kayit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad, email, sifre }),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err);
+      }
+
+      // Kayıt başarılıysa otomatik giriş yap
+      return await login(email, sifre);
+    } catch (err) {
+      return { basarili: false, hata: err.message };
+    }
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('biletbul_user');
   };
 
   const addTicket = (ticket) => {
     if (user) {
-      setUser(prev => ({
-        ...prev,
-        tickets: [ticket, ...prev.tickets]
-      }));
+      const guncellendi = { ...user, tickets: [ticket, ...user.tickets] };
+      setUser(guncellendi);
+      localStorage.setItem('biletbul_user', JSON.stringify(guncellendi));
     }
   };
 
