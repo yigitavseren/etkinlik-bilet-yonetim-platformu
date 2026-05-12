@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rtBddub4pOjhwqbOtMkBv2CFHieTO7cNoTonhLRtN+Nu8s86AdpW595bMWhvEwtnVhr42KG1rApjsZuopPP9uw==",
+  "dgSpecHash": "F35VAofNSDkreAeFG5C3FV4gfps5nO93krv/s5N6GC9hlpBTvxTRUoHP9LfwpqiJuxCXRGZ+fphoYBzVmtuFCQ==",
   "success": true,
-  "projectFilePath": "/home/ftma/Desktop/BiletBulAPI/BiletBulAPI.csproj",
+  "projectFilePath": "/home/ftma/Desktop/etkinlik-bilet-yonetim-platformu/backend/BiletBulAPI.csproj",
   "expectedPackageFiles": [
     "/home/ftma/.nuget/packages/bcrypt.net-next/4.1.0/bcrypt.net-next.4.1.0.nupkg.sha512",
     "/home/ftma/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/8.0.0/microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
