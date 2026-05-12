@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BiletBulAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f53cfca4dec7f5da6744fdf310c28079cdb17512")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4544258b58d692560c8f4e6a95d5cd0133f62c09")]
 [assembly: System.Reflection.AssemblyProductAttribute("BiletBulAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BiletBulAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

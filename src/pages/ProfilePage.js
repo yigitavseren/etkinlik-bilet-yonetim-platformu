@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Ticket as TicketIcon, BarChart2, } from "lucide-react";
+import { ArrowLeft, Ticket as TicketIcon, BarChart2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 
 const API_URL = "http://localhost:5196/api";
@@ -9,6 +9,36 @@ const API_URL = "http://localhost:5196/api";
 function ProfilePage() {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [biletler, setBiletler] = useState([]);
+  const [yukleniyor, setYukleniyor] = useState(true);
+
+  useEffect(() => {
+    if (user && user.role === "kullanici") {
+      fetch(`${API_URL}/Bilet/kullanici/${user.id}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      })
+        .then(r => r.json())
+        .then(data => {
+  const formatted = data.map(b => ({
+    id: b.id,
+    refCode: "BLT-" + String(b.id).padStart(6, "0"),
+    eventName: b.etkinlikAd,
+    artist: "",
+    category: "",
+    date: new Date(b.etkinlikTarih).toLocaleDateString("tr-TR"),
+    time: new Date(b.etkinlikTarih).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+    venue: b.etkinlikMekan,
+    seats: [b.koltukNo],
+    price: b.fiyat
+  }));
+  setBiletler(formatted);
+})
+        .catch(console.error)
+        .finally(() => setYukleniyor(false));
+    } else {
+      setYukleniyor(false);
+    }
+  }, [user]);
 
   if (!user) {
     return (
@@ -43,8 +73,6 @@ function ProfilePage() {
               Çıkış Yap
             </button>
           </div>
-
-          {/* Admin İstatistikleri */}
           <div style={{ display: "flex", gap: "16px" }}>
             <button onClick={() => navigate("/admin")} style={{
               flex: 1, padding: "16px", backgroundColor: "var(--primary)", color: "white",
@@ -78,8 +106,6 @@ function ProfilePage() {
               Çıkış Yap
             </button>
           </div>
-
-          {/* Organizatör İstatistikleri */}
           <button onClick={() => navigate("/organizer")} style={{
             width: "100%", padding: "16px", backgroundColor: "var(--primary)", color: "white",
             border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer",
@@ -114,15 +140,17 @@ function ProfilePage() {
         </h2>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          {user.tickets.length === 0 ? (
+          {yukleniyor ? (
+            <div style={{ padding: "48px", textAlign: "center", color: "var(--text-muted)" }}>Yükleniyor...</div>
+          ) : biletler.length === 0 ? (
             <div style={{ padding: "48px", textAlign: "center", backgroundColor: "var(--bg-card)", borderRadius: "16px", border: "1px dashed var(--border-color)", color: "var(--text-muted)" }}>
               Henüz hiç bilet satın almadınız.
             </div>
           ) : (
-            user.tickets.map((ticket, index) => (
+            biletler.map((ticket, index) => (
               <div key={index} style={{ display: "flex", backgroundColor: "white", color: "black", borderRadius: "16px", overflow: "hidden", position: "relative" }}>
                 <div style={{ flex: 1, padding: "24px", borderRight: "2px dashed #ccc", position: "relative" }}>
-                  <div style={{ display: "inline-block", padding: "4px 8px", backgroundColor: "#f1f5f9", color: "#64748b", borderRadius: "4px", fontSize: "12px", fontWeight: 600, marginBottom: "12px", textTransform: "uppercase" }}>{ticket.category}</div>
+                  <div style={{ display: "inline-block", padding: "4px 8px", backgroundColor: "#f1f5f9", color: "#64748b", borderRadius: "4px", fontSize: "12px", fontWeight: 600, marginBottom: "12px", textTransform: "uppercase" }}>{ticket.category || "Etkinlik"}</div>
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 800 }}>{ticket.eventName}</h3>
                   <div style={{ color: "#64748b", fontWeight: 500, marginBottom: "24px" }}>{ticket.artist}</div>
                   <div style={{ display: "flex", gap: "32px" }}>
