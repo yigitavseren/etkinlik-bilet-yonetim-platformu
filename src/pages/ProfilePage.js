@@ -19,20 +19,20 @@ function ProfilePage() {
       })
         .then(r => r.json())
         .then(data => {
-  const formatted = data.map(b => ({
-    id: b.id,
-    refCode: "BLT-" + String(b.id).padStart(6, "0"),
-    eventName: b.etkinlikAd,
-    artist: "",
-    category: "",
-    date: new Date(b.etkinlikTarih).toLocaleDateString("tr-TR"),
-    time: new Date(b.etkinlikTarih).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
-    venue: b.etkinlikMekan,
-    seats: [b.koltukNo],
-    price: b.fiyat
-  }));
-  setBiletler(formatted);
-})
+          const formatted = data.map(b => ({
+            id: b.id,
+            refCode: "BLT-" + String(b.id).padStart(6, "0"),
+            eventName: b.etkinlikAd,
+            artist: "",
+            category: "",
+            date: new Date(b.etkinlikTarih).toLocaleDateString("tr-TR"),
+            time: new Date(b.etkinlikTarih).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }),
+            venue: b.etkinlikMekan,
+            seats: [b.koltukNo],
+            price: b.fiyat
+          }));
+          setBiletler(formatted);
+        })
         .catch(console.error)
         .finally(() => setYukleniyor(false));
     } else {
@@ -54,7 +54,21 @@ function ProfilePage() {
     navigate("/");
   };
 
-  // ADMIN PROFİLİ
+  const handleIade = async (ticketId) => {
+    if (!window.confirm("Bu bileti iade etmek istediğinizden emin misiniz?")) return;
+    try {
+      const res = await fetch(`${API_URL}/Bilet/${ticketId}/iade`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
+      if (res.ok) {
+        setBiletler(prev => prev.filter(b => b.id !== ticketId));
+      }
+    } catch (err) {
+      console.error("İade hatası:", err);
+    }
+  };
+
   if (user.role === "admin") {
     return (
       <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-dark)", padding: "48px 32px" }}>
@@ -73,21 +87,18 @@ function ProfilePage() {
               Çıkış Yap
             </button>
           </div>
-          <div style={{ display: "flex", gap: "16px" }}>
-            <button onClick={() => navigate("/admin")} style={{
-              flex: 1, padding: "16px", backgroundColor: "var(--primary)", color: "white",
-              border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
-            }}>
-              <BarChart2 size={20} /> Yönetim Paneline Git
-            </button>
-          </div>
+          <button onClick={() => navigate("/admin")} style={{
+            width: "100%", padding: "16px", backgroundColor: "var(--primary)", color: "white",
+            border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: "8px"
+          }}>
+            <BarChart2 size={20} /> Yönetim Paneline Git
+          </button>
         </div>
       </div>
     );
   }
 
-  // ORGANİZATÖR PROFİLİ
   if (user.role === "organizer") {
     return (
       <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-dark)", padding: "48px 32px" }}>
@@ -118,7 +129,6 @@ function ProfilePage() {
     );
   }
 
-  // NORMAL KULLANICI PROFİLİ
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-dark)", padding: "48px 32px" }}>
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -150,7 +160,9 @@ function ProfilePage() {
             biletler.map((ticket, index) => (
               <div key={index} style={{ display: "flex", backgroundColor: "white", color: "black", borderRadius: "16px", overflow: "hidden", position: "relative" }}>
                 <div style={{ flex: 1, padding: "24px", borderRight: "2px dashed #ccc", position: "relative" }}>
-                  <div style={{ display: "inline-block", padding: "4px 8px", backgroundColor: "#f1f5f9", color: "#64748b", borderRadius: "4px", fontSize: "12px", fontWeight: 600, marginBottom: "12px", textTransform: "uppercase" }}>{ticket.category || "Etkinlik"}</div>
+                  <div style={{ display: "inline-block", padding: "4px 8px", backgroundColor: "#f1f5f9", color: "#64748b", borderRadius: "4px", fontSize: "12px", fontWeight: 600, marginBottom: "12px", textTransform: "uppercase" }}>
+                    {ticket.category || "Etkinlik"}
+                  </div>
                   <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", fontWeight: 800 }}>{ticket.eventName}</h3>
                   <div style={{ color: "#64748b", fontWeight: 500, marginBottom: "24px" }}>{ticket.artist}</div>
                   <div style={{ display: "flex", gap: "32px" }}>
@@ -164,12 +176,22 @@ function ProfilePage() {
                     </div>
                   </div>
                   <div style={{ marginTop: "24px", paddingTop: "24px", borderTop: "1px solid #e2e8f0" }}>
-                    <div style={{ fontSize: "10px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Koltuklar</div>
-                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                    <div style={{ fontSize: "10px", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Koltuklar</div>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>
                       {ticket.seats.map(s => (
                         <span key={s} style={{ padding: "4px 8px", backgroundColor: "#0f172a", color: "white", borderRadius: "4px", fontSize: "12px", fontWeight: 600 }}>{s}</span>
                       ))}
                     </div>
+                    <button
+                      onClick={() => handleIade(ticket.id)}
+                      style={{
+                        padding: "8px 16px", backgroundColor: "transparent", color: "#ef4444",
+                        border: "1px solid #ef4444", borderRadius: "6px", fontSize: "13px",
+                        fontWeight: 600, cursor: "pointer"
+                      }}
+                    >
+                      Bileti İptal Et
+                    </button>
                   </div>
                 </div>
                 <div style={{ width: "200px", backgroundColor: "#f8fafc", padding: "24px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
