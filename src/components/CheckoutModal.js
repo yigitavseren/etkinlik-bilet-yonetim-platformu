@@ -3,7 +3,8 @@ import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
+// birimFiyat ve secilenTur prop olarak geliyor (TicketPage'den)
+function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice, birimFiyat, secilenTur }) {
   const navigate = useNavigate();
   const { addTicket } = useContext(AuthContext);
 
@@ -23,11 +24,7 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
 
     const timer = setInterval(() => {
       setTimeLeft(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setTimeExpired(true);
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(timer); setTimeExpired(true); return 0; }
         return prev - 1;
       });
     }, 1000);
@@ -37,13 +34,8 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
 
   if (!isOpen) return null;
 
-  const formatCardNumber = (val) => {
-    return val.replace(/\s/g, "").replace(/(\d{4})/g, "$1 ").trim();
-  };
-
-  const formatExpiry = (val) => {
-    return val.replace(/\//g, "").replace(/(\d{2})/, "$1/").substring(0, 5);
-  };
+  const formatCardNumber = (val) => val.replace(/\s/g, "").replace(/(\d{4})/g, "$1 ").trim();
+  const formatExpiry = (val) => val.replace(/\//g, "").replace(/(\d{2})/, "$1/").substring(0, 5);
 
   const handlePay = async (e) => {
     e.preventDefault();
@@ -51,7 +43,7 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
     setPaymentStatus("processing");
 
     try {
-      const user = JSON.parse(localStorage.getItem('biletbul_user'));
+      const user = JSON.parse(localStorage.getItem("biletbul_user"));
       const token = user?.token;
       const refCode = "BLT-" + Math.floor(100000 + Math.random() * 900000);
 
@@ -60,15 +52,18 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             kullaniciId: user.id,
             etkinlikId: event.id,
             koltukNo: seat,
-            fiyat: event.price,
-            durum: "aktif"
-          })
+            // YENİ: bilet türü bilgileri
+            biletTuruId: secilenTur?.id ?? null,
+            tabanFiyat: event.price,               // etkinliğin taban fiyatı (snapshot)
+            fiyat: birimFiyat ?? event.price,       // tür çarpanı uygulanmış birim fiyat
+            durum: "aktif",
+          }),
         });
       }
 
@@ -84,13 +79,11 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
         time: event.time,
         venue: event.venue,
         seats: selectedSeats,
-        price: totalPrice
+        price: totalPrice,
+        biletTuru: secilenTur?.ad ?? "Standart",   // profil sayfasında göstermek için
       });
 
-      setTimeout(() => {
-        onClose();
-        navigate("/profile");
-      }, 2000);
+      setTimeout(() => { onClose(); navigate("/profile"); }, 2000);
 
     } catch (err) {
       console.error("Ödeme hatası:", err);
@@ -102,18 +95,12 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
       backgroundColor: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100,
-      padding: "24px"
+      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100, padding: "24px"
     }}>
       <div style={{
-        backgroundColor: "var(--bg-card)",
-        borderRadius: "20px",
-        width: "100%",
-        maxWidth: "500px",
-        border: "1px solid var(--border-color)",
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
-        overflow: "hidden",
-        position: "relative"
+        backgroundColor: "var(--bg-card)", borderRadius: "20px", width: "100%", maxWidth: "500px",
+        border: "1px solid var(--border-color)", boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5)",
+        overflow: "hidden", position: "relative"
       }}>
 
         {/* HEADER */}
@@ -124,13 +111,7 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             {paymentStatus === "idle" && !timeExpired && (
               <div style={{ display: "flex", alignItems: "center", gap: "8px", color: timeLeft <= 5 ? "#ef4444" : "var(--text-muted)", fontWeight: 600, fontSize: "14px" }}>
-                <div style={{
-                  width: "32px", height: "32px", borderRadius: "50%",
-                  border: `3px solid ${timeLeft <= 5 ? "#ef4444" : "var(--primary)"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "12px", fontWeight: 700,
-                  color: timeLeft <= 5 ? "#ef4444" : "var(--primary)"
-                }}>
+                <div style={{ width: "32px", height: "32px", borderRadius: "50%", border: `3px solid ${timeLeft <= 5 ? "#ef4444" : "var(--primary)"}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: 700, color: timeLeft <= 5 ? "#ef4444" : "var(--primary)" }}>
                   {timeLeft}
                 </div>
                 saniye
@@ -151,60 +132,62 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
               <X size={48} color="#ef4444" />
             </div>
             <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", color: "#ef4444" }}>Süre Doldu!</h3>
-            <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center" }}>
-              Ödeme süresi doldu. Lütfen tekrar deneyin.
-            </p>
-            <button onClick={onClose} style={{
-              padding: "12px 32px", backgroundColor: "var(--primary)", color: "white",
-              border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer"
-            }}>
-              Kapat
-            </button>
+            <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center" }}>Ödeme süresi doldu. Lütfen tekrar deneyin.</p>
+            <button onClick={onClose} style={{ padding: "12px 32px", backgroundColor: "var(--primary)", color: "white", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: 600, cursor: "pointer" }}>Kapat</button>
           </div>
         )}
 
         {/* ÖDEME FORMU */}
         {paymentStatus === "idle" && !timeExpired && (
           <div style={{ padding: "32px" }}>
-            {/* VIRTUAL CREDIT CARD */}
+
+            {/* Seçilen tür özeti */}
+            {secilenTur && (
+              <div style={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "10px 14px", borderRadius: "8px", marginBottom: "20px",
+                border: `1px solid ${secilenTur.renkHex}`,
+                background: `rgba(${parseInt(secilenTur.renkHex.slice(1,3),16)},${parseInt(secilenTur.renkHex.slice(3,5),16)},${parseInt(secilenTur.renkHex.slice(5,7),16)},0.08)`,
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ width: 8, height: 8, borderRadius: "50%", background: secilenTur.renkHex, display: "inline-block" }} />
+                  <span style={{ fontSize: "14px", fontWeight: 600, color: secilenTur.renkHex }}>{secilenTur.ad} Bilet</span>
+                </div>
+                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+                  {selectedSeats.length} × ₺{(birimFiyat ?? event.price).toLocaleString("tr-TR", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
+
+            {/* SANAL KART */}
             <div style={{
               width: "100%", height: "220px", borderRadius: "16px", marginBottom: "32px",
               background: "linear-gradient(135deg, #1e3a8a 0%, #4338ca 100%)",
-              boxShadow: "0 10px 25px -5px rgba(67, 56, 202, 0.5)",
+              boxShadow: "0 10px 25px -5px rgba(67,56,202,0.5)",
               padding: "24px", boxSizing: "border-box", position: "relative",
-              color: "white", display: "flex", flexDirection: "column", justifyContent: "space-between",
-              overflow: "hidden"
+              color: "white", display: "flex", flexDirection: "column", justifyContent: "space-between", overflow: "hidden"
             }}>
-              <div style={{ position: "absolute", right: "-20px", top: "-20px", width: "150px", height: "150px", borderRadius: "50%", background: "rgba(255,255,255,0.1)" }}></div>
-              <div style={{ position: "absolute", left: "-50px", bottom: "-50px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }}></div>
-
+              <div style={{ position: "absolute", right: "-20px", top: "-20px", width: "150px", height: "150px", borderRadius: "50%", background: "rgba(255,255,255,0.1)" }} />
+              <div style={{ position: "absolute", left: "-50px", bottom: "-50px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.05)" }} />
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative" }}>
                 <div style={{ fontSize: "20px", fontWeight: 800, fontStyle: "italic", letterSpacing: "1px" }}>BiletBul</div>
                 <div style={{ display: "flex", gap: "4px" }}>
-                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "rgba(239, 68, 68, 0.8)", mixBlendMode: "screen" }}></div>
-                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "rgba(245, 158, 11, 0.8)", mixBlendMode: "screen", marginLeft: "-15px" }}></div>
+                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "rgba(239,68,68,0.8)", mixBlendMode: "screen" }} />
+                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", backgroundColor: "rgba(245,158,11,0.8)", mixBlendMode: "screen", marginLeft: "-15px" }} />
                 </div>
               </div>
-
               <div style={{ position: "relative" }}>
                 <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "2px", marginBottom: "4px" }}>Kart Numarası</div>
-                <div style={{ fontSize: "22px", letterSpacing: "3px", fontFamily: "monospace", minHeight: "26px" }}>
-                  {cardNumber || "•••• •••• •••• ••••"}
-                </div>
+                <div style={{ fontSize: "22px", letterSpacing: "3px", fontFamily: "monospace", minHeight: "26px" }}>{cardNumber || "•••• •••• •••• ••••"}</div>
               </div>
-
               <div style={{ display: "flex", justifyContent: "space-between", position: "relative" }}>
                 <div>
                   <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>Kart Sahibi</div>
-                  <div style={{ fontSize: "16px", fontWeight: 500, letterSpacing: "1px", textTransform: "uppercase", minHeight: "20px" }}>
-                    {cardName || "İSİM SOYİSİM"}
-                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: 500, letterSpacing: "1px", textTransform: "uppercase", minHeight: "20px" }}>{cardName || "İSİM SOYİSİM"}</div>
                 </div>
                 <div>
                   <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.6)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "4px" }}>SKT</div>
-                  <div style={{ fontSize: "16px", fontWeight: 500, letterSpacing: "1px", fontFamily: "monospace", minHeight: "20px" }}>
-                    {expiry || "AA/YY"}
-                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: 500, letterSpacing: "1px", fontFamily: "monospace", minHeight: "20px" }}>{expiry || "AA/YY"}</div>
                 </div>
               </div>
             </div>
@@ -230,11 +213,12 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
                 </div>
               </div>
               <button type="submit" style={{
-                padding: "16px", backgroundColor: "var(--primary)", color: "white", border: "none", borderRadius: "12px",
-                fontSize: "18px", fontWeight: 600, cursor: "pointer", marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center"
+                padding: "16px", backgroundColor: "var(--primary)", color: "white", border: "none",
+                borderRadius: "12px", fontSize: "18px", fontWeight: 600, cursor: "pointer",
+                marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center"
               }}>
                 <span>Onayla ve Öde</span>
-                <span>{totalPrice} ₺</span>
+                <span>{totalPrice.toLocaleString("tr-TR", { minimumFractionDigits: 2 })} ₺</span>
               </button>
             </form>
           </div>
@@ -253,11 +237,13 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
         {/* SUCCESS */}
         {paymentStatus === "success" && (
           <div style={{ padding: "64px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "400px" }}>
-            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "rgba(16, 185, 129, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px" }}>
+            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "rgba(16,185,129,0.1)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px" }}>
               <CheckCircle2 size={48} color="#10b981" />
             </div>
             <h3 style={{ margin: "0 0 8px 0", fontSize: "24px", color: "#10b981" }}>Ödeme Başarılı!</h3>
-            <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center" }}>Biletleriniz oluşturuldu.<br />Biletlerim sayfasına yönlendiriliyorsunuz...</p>
+            <p style={{ margin: "0 0 24px 0", color: "var(--text-muted)", textAlign: "center" }}>
+              Biletleriniz oluşturuldu.<br />Biletlerim sayfasına yönlendiriliyorsunuz...
+            </p>
             <div style={{ width: "100%", padding: "16px", backgroundColor: "var(--bg-dark)", borderRadius: "12px", border: "1px dashed var(--border-color)", textAlign: "center" }}>
               <div style={{ fontFamily: "monospace", fontSize: "18px", fontWeight: 600, letterSpacing: "2px", color: "var(--primary)" }}>✓ Biletleriniz profilinize eklendi</div>
             </div>
@@ -271,8 +257,8 @@ function CheckoutModal({ isOpen, onClose, event, selectedSeats, totalPrice }) {
 
 const inputStyle = {
   width: "100%", padding: "12px 16px", borderRadius: "8px", border: "1px solid var(--border-color)",
-  backgroundColor: "var(--bg-dark)", color: "var(--text-main)", outline: "none", boxSizing: "border-box",
-  fontSize: "16px", fontFamily: "inherit"
+  backgroundColor: "var(--bg-dark)", color: "var(--text-main)", outline: "none",
+  boxSizing: "border-box", fontSize: "16px", fontFamily: "inherit"
 };
 
 export default CheckoutModal;
